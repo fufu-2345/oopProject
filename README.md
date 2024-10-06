@@ -7,3 +7,8 @@ npm install
 git add .
 git commit -m "V..."
 git push origin main
+
+---
+
+git remote add origin "new url"
+git push --force origin main
