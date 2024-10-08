@@ -6,6 +6,168 @@ html, body {
 
 body{
 
+  .sidebar {
+    height: 100vh;
+    width: 257px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #ffffff;
+    padding-top: 20px;
+    border-right: 1px solid #dadce0;
+    z-index: 999;
+  }
+  
+  .sidebar ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .sidebar li {
+    padding: 15px;
+    text-align: left;
+    font-size: 18px;
+    color: #333;
+    cursor: pointer;
+  }
+  
+  .sidebar li:hover {
+    background-color: #f8f9fa;
+  }
+
+  .RSNA2024 {
+    font-weight: bold;
+    font-size: 35px;
+    color: #333;
+  }
+
+  .create-button {
+    display: flex;
+    margin-top: -25px;
+    background-color: white;
+    border: 1px solid #f2f2f2;
+    margin-left: 3%;
+    border-radius: 50px;
+    padding: 0px 15% 0px 10%; /* ลดความสูงอีกและเพิ่มความกว้าง */
+    box-shadow: 0 0.1em 0.1em #c1c3c3;
+    cursor: pointer;
+    font-size: 110%; /* เพิ่มขนาดฟอนต์เล็กน้อย */
+  }
+
+  .create-button:hover {
+    box-shadow: 0 0.1em 0.3em #c1c3c3; /* เพิ่มเงาเมื่อ hover */
+  }
+
+  .icon {
+    color: #20beff;
+    margin: 0px 10% 0px 0%;
+    font-size: 270%; /* ขนาดไอคอน */
+  }
+
+  .circle-button {
+    margin-top: -10px; 
+    margin-left: 5%;
+    width: 50px;      
+    height: 50px;  
+    left: 15%;   
+    border-radius: 50%;  
+    background-color: #ffffff;
+    border: none;      
+    color: #202124;    
+    font-size: 24px;    
+    display: flex;      
+    justify-content: center; 
+    align-items: center; 
+    cursor: pointer;    
+    transition: background-color 0.3s; 
+  }
+
+  .hamberger{
+    font-size: 19px;
+  }
+
+  .circle-button:hover {
+      background-color: #e8eaed;
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: -5px;
+  }
+  
+  .kaggle {
+    margin-top: 20px; 
+    font-family: 'Arial', sans-serif;
+    font-size: 31px; 
+    color: #20beff; 
+    cursor: pointer;
+    margin-left: 10px; 
+    font-weight: 500;
+  }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    border: 2px solid #dadce0;
+    border-radius: 50px;
+    padding: 5px 15px;
+    width: 350px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+      cursor: text; /* ให้ cursor เป็น text ตลอด */
+  }
+
+  .search-bar:hover {
+    border-color: #202124; 
+    outline: 2px solid transparent; 
+  }
+
+  .search-bar input {
+    border: none;
+    padding: 10px;
+    border-radius: 50px;
+    width: 100%;
+    background-color: transparent;
+    color: #ffffff;
+    font-size: 16px;
+    outline: none;
+    cursor: text; /* ทำให้ cursor เป็น text ใน input */
+  }
+
+  .search-bar input::placeholder {
+    color: #5f6368;
+    font-size: 15px;
+  }
+
+  .search-bar button {
+    background-color: transparent;
+    border: none;
+    color: #555;
+    font-size: 18px;
+    margin-right: 10px;
+    cursor: text;
+  }
+
+  .search-bar button i {
+    color: #5f6368;
+    font-size: 18px; 
+    cursor: text; 
+  }
+
+  .justLine{
+    border: none;
+    position: relative;
+    left: -50%;
+    width: 200%; /* ปิดเส้นขอบ */
+    height: 1px; /* ความสูงของเส้น */
+    background-color: #dadce0; /* สีของเส้น */
+    margin: 20px 0;
+  }
+
+
     * {
         box-sizing: border-box;
       }
@@ -13,17 +175,13 @@ body{
       .container {
         max-width: 900px;
         margin: auto;
-        padding: 20px;
-        font-family: Arial, sans-serif;
-        background-color: #f9f9f9;
-      }
-      
-      .header {
-        text-align: center;
-        margin-bottom: 40px;
+        padding: 20px 0px 0px 40px;
+        font-family: Arial;
+        background-color: #ffffff;
       }
       
       .tagline {
+        top: -50px;
         font-weight: normal;
         color: #777;
       }
@@ -48,33 +206,7 @@ body{
       .nav-button:hover {
         background-color: #0056b3;
       }
-      
-      .section {
-        margin-bottom: 30px;
-        padding: 15px;
-        background-color: white;
-        border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      
-      h2 {
-        font-size: 1.5rem;
-        color: #333;
-        border-bottom: 2px solid #007bff;
-        padding-bottom: 5px;
-      }
-      
-      p {
-        font-size: 1rem;
-        line-height: 1.5;
-        color: #555;
-      }
-      
-      .footer {
-        text-align: center;
-        margin-top: 40px;
-        font-size: 0.9rem;
-        color: #777;
-      }
+
+
 
 }

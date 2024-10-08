@@ -1,53 +1,74 @@
 import React, { useState } from 'react';
+import { FaBars } from 'react-icons/fa';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import './App.css';
 
 function App() {
   return (
-    <div className="container">
-      <header className="header">
-        <h1>RSNA 2024 Lumbar Spine Degenerative Classification</h1>
-        <p className="tagline">Competition Overview</p>
-      </header>
+    <div>
 
-      <nav className="nav">
-        <button className="nav-button">Overview</button>
-        <button className="nav-button">Evaluation</button>
-        <button className="nav-button">Data</button>
-        <button className="nav-button">Rules</button>
-        <button className="nav-button">Submit</button>
-      </nav>
+      <div className="sidebar">
 
-      <section className="section">
-        <h2>Overview</h2>
-        <p>
-          This competition invites participants to develop models for classifying lumbar spine degenerative diseases based on MRI scans.
-        </p>
-      </section>
+        <div className="sidebar-header">
+          <button className="circle-button">
+            <FaBars className="hamberger"/>
+          </button>
+          <p className="kaggle">kaggle</p>
+        </div>
 
-      <section className="section">
-        <h2>Evaluation</h2>
-        <p>
-          Submissions will be evaluated based on their accuracy in classifying images into various categories.
-        </p>
-      </section>
+        <br/>
 
-      <section className="section">
-        <h2>Data</h2>
-        <p>
-          The dataset consists of MRI images along with metadata. More details are provided in the data section.
-        </p>
-      </section>
+        <button className="create-button">
+          <span className="icon">+  </span>
+          <p>Create</p>
+        </button>
 
-      <section className="section">
-        <h2>Rules</h2>
-        <p>
-          Participants must adhere to the competition rules, including ethical considerations for data usage.
-        </p>
-      </section>
+        <ul>
+          <li>Home</li>
+          <li>Competitions</li>
+          <li>Datasets</li>
+          <li>Models</li>
+          <li>Code</li>
+          <li>Discussion</li>
+          <li>Learn</li>
+          <li>More</li> 
+        </ul>
+      </div>
 
-      <footer className="footer">
-        <p>© 2024 RSNA Competition</p>
-      </footer>
+
+      <div className="container">
+
+        <div className="search-bar">
+            <button disabled>
+                <i className="fas fa-search"></i>
+            </button>
+            <input 
+                type="text" 
+                placeholder="Search" 
+                disabled
+                
+            />
+        </div>
+
+        <br/>
+        <p className="RSNA2024">RSNA 2024 Lumbar Spine Degenerative <br/>Classification</p>
+        <p className="tagline">Classify lumbar spine degenerative conditions</p>
+          
+      
+        <nav className="nav">
+          <button className="nav-button">Overview</button>
+          <button className="nav-button">Evaluation</button>
+          <button className="nav-button">Data</button>
+          <button className="nav-button">Rules</button>
+          <button className="nav-button">Submit</button>
+        </nav>
+
+        <hr className="justLine"/>
+        
+
+      
+      </div>
+
     </div>
   );
 }
