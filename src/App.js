@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaBars } from 'react-icons/fa';
+import { Button, Container, Form, Table } from 'react-bootstrap';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './App.css';
 
@@ -25,7 +26,7 @@ function App() {
 
         <ul>
           <li>Home</li>
-          <li>Competitions</li>
+          <li className="compet">Competitions</li>
           <li>Datasets</li>
           <li>Models</li>
           <li>Code</li>
@@ -54,14 +55,27 @@ function App() {
         <p className="RSNA2024">RSNA 2024 Lumbar Spine Degenerative <br/>Classification</p>
         <p className="tagline">Classify lumbar spine degenerative conditions</p>
           
-      
-        <nav className="nav">
-          <button className="nav-button">Overview</button>
-          <button className="nav-button">Evaluation</button>
-          <button className="nav-button">Data</button>
-          <button className="nav-button">Rules</button>
-          <button className="nav-button">Submit</button>
-        </nav>
+
+
+
+
+
+        แก้เป็น list เรียงกันแนวนอน
+        <Container className="topContainer">
+          <Table striped bordered hover variant="dark">
+            <thead>
+              <tr>
+                <th width="10%" className="topTH">Overview</th>
+                <th width="10%" className="topTH">Data</th>
+                <th width="10%" className="topTH">Code</th>
+                <th width="10%" className="topTH">Models</th>
+                <th width="10%" className="topTH">Discussion</th>
+                <th width="10%" className="topTH">Leaderboard</th>
+                <th width="10%" className="topTH">Rules</th>
+              </tr>
+            </thead>
+          </Table>
+        </Container>
 
         <hr className="justLine"/>
         
