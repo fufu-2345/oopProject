@@ -7,6 +7,7 @@ import { faTrophy } from '@fortawesome/free-solid-svg-icons';
 import { GoCode } from "react-icons/go";
 import { VscLayoutPanelCenter } from "react-icons/vsc";
 import { BsChatRightText } from "react-icons/bs";
+import img from './img/idk.png';
 
 import './App.css';
 
@@ -45,9 +46,10 @@ function App() {
 
       </div>
 
+      
 
       <div className="container">
-
+        <img src={img} alt="รูปขวาบน" className="img" />
         <div className="search-bar">
             <button disabled>
                 <i className="fas fa-search"></i>
@@ -73,6 +75,8 @@ function App() {
           <li>Discussion</li>
           <li>Leaderboard</li>
           <li>Rules</li>
+          <li>Team</li>
+          <li>Submissions</li>
         </ul>
 
         <hr className="justLine"/>
@@ -84,49 +88,66 @@ function App() {
         <p className="same">submission) will be made available to your notebook.</p>
         <br/>
 
-        <p className="bigText">Files</p>
+        <p className="bigText2">Files</p>
      
 
         <p className="traincsv">
           <span className="blackText">train.csv</span> Labels for the train set.
         </p>
 
-      
-        <div className="data-section">
-                <ul>
-                    <li><strong>study_id</strong> - The study ID. Each study may include multiple series of images.</li>
-                    <li><strong>series_id</strong> - The target labels, such as spinal_canal_stenosis_l1_l2, with the severity levels of </li>
-                    <li><strong>condition</strong> - There are three conditions: spinal canal stenosis, neural_foraminal_narrowing, and subarticular_stenosis.</li>
-                    <li><strong>level</strong> - The relevant vertebrae, such as 13_14.</li>
-                    <li><strong>[x/y]</strong> - The x/y coordinates for the center of the area that defined the label.</li>
-                </ul>
-            </div>
+
+        <ul>
+          <li className="textLi"><span className="Gray">study_id</span> - The study ID. Each study may include multiple series of images.</li>
+          <li className="textLi">
+
+            <span className="Gray">[condition]_[level]</span> - The target labels, such as <span className="Gray">spinal_canal_stenosis_l1_l2</span>, with the severity levels of <span className="Gray">Normal/Mild</span>,
+            <br className="custom-br" />
+            <span className="Gray"> Moderate</span>, or <span className="Gray">Severe</span>. Some entries have incomplete labels.</li>
+        </ul>
+
+        <p className="trainLable">
+          train_label_coordinates.csv
+        </p>
+
+        <ul>
+          <li className="textLi"><span className="Gray">study_id</span></li>
+          <li className="textLi"><span className="Gray">series_id</span> - The imagery series ID.</li>
+          <li className="textLi"><span className="Gray">instance_number</span> - The image's order number within the 3D stack.</li>
+          <li className="textLi"><span className="Gray">condition</span> - There are three core conditions: spinal canal stenosis, neural_foraminal_narrowing, and subarticular_stenosis. The latter 
+          <br/>two are considered for each side of the spine.</li>
+          <li className="textLi"><span className="Gray">level</span> - The relevant vertebrae, such as <span className="Gray">l3_l4</span></li>
+          <li className="textLi"><span className="Gray">[x/y]</span> - The x/y coordinates for the center of the area that defined the label.</li>   
+        </ul>
+
+        <p className="trainLable">
+          sample_submission.csv
+        </p>
 
 
+        <ul>
+          <li className="textLi"><span className="Gray">row_id</span> - A slug of the study ID, condition, and level such as<span className="Gray">12345_spinal_canal_stenosis_l3_l4</span>.</li>
+          <li className="textLi"><span className="Gray">[normal_mild/moderate/severe]</span> - The three prediction columns.</li>
+        </ul>
 
+        <p className="trainLable">
+          [train/test]_images/[study_id]/[series_id]/[instance_number].dcm<span className="imageryData"> The imagery data.</span>
+        </p>
 
-            <br/><br/><br/><br/><br/><br/>
-            <div className="data-section">
-                <h3>sample_submission.csv</h3>
-                <ul>
-                    <li><strong>row_id</strong> - A slug of the study ID, condition, and level.</li>
-                    <li><strong>[normal/mild/moderate/severe]</strong> - The three prediction columns.</li>
-                </ul>
-            </div>
+        <p className="trainLable">
+          [train/test]_series_descriptions.csv
+        </p>
 
-            <div className="data-section">
-                <h3>[train/test]_images/[study_id]/[series_id]/[instance_number].dcm</h3>
-                <p>The imagery data.</p>
-            </div>
+        <ul>
+          <li className="textLi"><span className="Gray">study_id</span></li>
+          <li className="textLi"><span className="Gray">series_id</span></li>
+          <li className="textLi"><span className="Gray">series_description</span>The scan's orientation.</li>
+        </ul>
 
-            <div className="data-section">
-                <h3>[train/test]_series_descriptions.csv</h3>
-                <ul>
-                    <li><strong>study_id</strong></li>
-                    <li><strong>series_id</strong></li>
-                    <li><strong>series_description</strong> - The scan's orientation.</li>
-                </ul>
-            </div>
+        
+
+        <hr className="editHr"/>
+
+        <br/><br/><br/><br/><br/><br/><br/><br/>
 
       </div>
 
