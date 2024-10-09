@@ -17,6 +17,8 @@ body{
     border-right: 1px solid #dadce0;
     z-index: 999;
   }
+
+  
   
   .sidebar ul {
     list-style-type: none;
@@ -24,6 +26,8 @@ body{
   }
   
   .sidebar li {
+    position: relative;
+    left: 0%;
     padding: 15px;
     text-align: left;
     font-size: 18px;
@@ -31,27 +35,28 @@ body{
     cursor: pointer;
   }
 
+  .sidebar li:hover {  
+    background-color: #f8f9fa;
+  }
+
   .compet {
-    position: relative;
     background-color: #f8f9fa;
   }
 
   .compet::before {
     content: '';
     position: absolute;
-    left: 99%; /* ขยับขีดไปทางซ้าย */
-    top: 0%; /* ตำแหน่งเริ่มต้นที่ด้านบน */
-    bottom: 10%; /* ตำแหน่งสิ้นสุดที่ด้านล่าง */
-    width: 3.25px; /* ความกว้างของขีด */
+    left: 99%; 
+    top: 0%; 
+    bottom: 10%; 
+    width: 3.25px; 
     height: 100%;
-    background-color: #000000; /* สีของขีด */
-    border-top-left-radius: 100px; /* โค้งมนที่มุมบนซ้าย */
-    border-bottom-left-radius: 100px; /* โค้งมนที่มุมล่างซ้าย */
+    background-color: #000000; 
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px; 
 }
 
-  .sidebar li:hover {
-    background-color: #f8f9fa;
-  }
+  
 
   .RSNA2024 {
     font-weight: bold;
@@ -65,7 +70,8 @@ body{
   }
 
   .topTH{
-   color: #5f6368;
+    color: #5f6368;
+    background-color: blue;
     cursor: pointer;
   }
   
@@ -89,7 +95,21 @@ body{
   .icon {
     color: #20beff;
     margin: 0px 10% 0px 0%;
-    font-size: 270%; /* ขนาดไอคอน */
+    font-size: 270%;
+  }
+
+  .iconSide {
+    position: relative;
+    left: 5% ;
+    margin-right: 15%;
+    color: #696368;
+  }
+
+  .iconcompet {
+    position: relative;
+    left: 5% ;
+    margin-right: 15%;
+    color: #202124;
   }
 
   .circle-button {
@@ -135,16 +155,18 @@ body{
   }
 
   .search-bar {
+    position: fixed;
     display: flex;
     align-items: center;
     border: 1px solid #dadce0;
     border-radius: 50px;
     padding: 5px 15px;
-    width: 100%;
+    width: 75%;
     background-color: #ffffff;
     box-sizing: border-box;
     transition: border-color 0.3s;
-      cursor: text; /* ให้ cursor เป็น text ตลอด */
+    cursor: text;
+    z-index: 10;
   }
 
   .search-bar:hover {
@@ -188,11 +210,81 @@ body{
     border: none;
     position: relative;
     left: -50%;
-    width: 200%; /* ปิดเส้นขอบ */
-    height: 1px; /* ความสูงของเส้น */
-    background-color: #dadce0; /* สีของเส้น */
+    top: -11.5px;
+    width: 200%; 
+    height: 1px;
+    background-color: #dadce0;
     margin: 20px 0;
   }
+
+  .newlist{
+    display: flex;       
+    flex-direction: row;  
+    list-style-type: none; 
+    padding-left: 1.5%; 
+    margin-top: -0.5%;
+    color: #836368; 
+    font-size: 17.3px;
+  }
+  
+  .newlist li {
+    margin-right: 3%;  
+    cursor: pointer;
+  }
+
+  .newlist li:hover{
+    color:#202124;
+  }
+
+  .data {
+    color: #202124;
+    position: relative;
+    display: inline-block;
+      padding-bottom: 5px;
+  }
+
+  .data::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -35%; /* ปรับค่าลบเพิ่มเพื่อเลื่อนเส้นลง */
+    width: 100%;
+    height: 3.25px;
+    background-color: #000000;
+    border-top-left-radius: 100px;  /* โค้งมนที่มุมซ้าย */
+    border-top-right-radius: 100px;
+  }
+
+  .bigText{
+    font-size: 150%;
+    font-weight: 600;
+  }
+
+  .topFar{
+    margin-top: 4%;
+    margin-bottom: 1.5%;
+    font-size: 14px;
+    color: #3c4043;
+  }
+
+  .same{
+    margin-bottom: -1%;
+    font-size: 14px;
+    color: #3c4043;
+  }
+
+  .traincsv{
+    margin-top: -0.9%;
+    font-size: 14px;
+    color: #3c4043;
+  }
+
+  .blackText{
+    font-size: 14px;
+    font-weight: 600;
+    color: #3c4043;
+  }
+
 
 
     * {
@@ -201,6 +293,7 @@ body{
       
       .container {
         position: relative;
+        left: 0.5%;
         max-width: 100%;
         margin: -10px -10px 0px 16.3%;
         padding: 20px 0px 0px 40px;
@@ -212,7 +305,7 @@ body{
         position: relative;
         top:-30px;
         font-weight: normal;
-        color: #777;
+        color: #836368;
       }
       
       .nav {
@@ -236,6 +329,8 @@ body{
         background-color: #0056b3;
       }
 
+
+      
 
 
 }
