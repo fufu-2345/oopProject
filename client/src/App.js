@@ -13,23 +13,39 @@ import './App.css';
 
 function App() {
   const [data, setData] = useState([]);
+  const [selectedFileData, setSelectedFileData] = useState([]);
+  const [fileNames, setFileNames] = useState([]);
 
-  // ฟังก์ชันดึงข้อมูลจาก API
-  const fetchData = async () => {
+  // ฟังก์ชันดึงข้อมูลชื่อไฟล์จาก API
+  const fetchFileNames = async () => {
       try {
-          const response = await fetch('http://localhost:5000/api/data'); // เปลี่ยน URL ตามที่เซิร์ฟเวอร์ของคุณรัน
+          const response = await fetch('http://localhost:5000/api/files'); // เปลี่ยน URL ตามที่เซิร์ฟเวอร์ของคุณรัน
           if (!response.ok) {
               throw new Error('Network response was not ok');
           }
           const result = await response.json();
-          setData(result);
+          setFileNames(result);
       } catch (error) {
-          console.error('Error fetching data:', error);
+          console.error('Error fetching file names:', error);
       }
   };
 
-    useEffect(() => {
-      fetchData();
+  // ฟังก์ชันดึงข้อมูลจากไฟล์ที่เลือก
+  const fetchFileData = async (fileName) => {
+      try {
+          const response = await fetch(`http://localhost:5000/api/data/${fileName}`);
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          const result = await response.json();
+          setSelectedFileData(result);
+      } catch (error) {
+          console.error('Error fetching file data:', error);
+      }
+  };
+
+  useEffect(() => {
+      fetchFileNames();
   }, []);
 
   return (
@@ -168,27 +184,50 @@ function App() {
         <hr className="editHr"/>
         <br/><br/><br/>
 
+
+
         <div>
-            <h1>CSV Data Table</h1>
+      {/* ... Sidebar and other components remain unchanged ... */}
+
+      <div className="container">
+        <h1>File List</h1>
+        <ul>
+          {fileNames.map((fileName, index) => (
+            <li key={index} onClick={() => fetchFileData(fileName)} style={{ cursor: 'pointer', color: 'blue' }}>
+              {fileName}
+            </li>
+          ))}
+        </ul>
+
+        {selectedFileData.length > 0 && (
+          <div>
+            <h2>CSV Data Table</h2>
             <table>
-                <thead>
-                    <tr>
-                        {data[0] && Object.keys(data[0]).map((key) => (
-                            <th key={key}>{key}</th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.map((row, index) => (
-                        <tr key={index}>
-                            {Object.values(row).map((value, idx) => (
-                                <td key={idx}>{value}</td>
-                            ))}
-                        </tr>
+              <thead>
+                <tr>
+                  {selectedFileData[0] && Object.keys(selectedFileData[0]).map((key) => (
+                    <th key={key}>{key}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {selectedFileData.map((row, index) => (
+                  <tr key={index}>
+                    {Object.values(row).map((value, idx) => (
+                      <td key={idx}>{value}</td>
                     ))}
-                </tbody>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-        </div>
+          </div>
+        )}
+
+        {/* ... Other components remain unchanged ... */}
+      </div>
+    </div>
+
+    
 
         <br/><br/><br/><br/><br/><br/><br/><br/>
 
