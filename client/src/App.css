@@ -98,7 +98,7 @@ body{
   }
 
   .create-button:hover {
-    box-shadow: 0 0.1em 0.3em #c1c3c3; /* เพิ่มเงาเมื่อ hover */
+    box-shadow: 0 0.1em 0.3em #c1c3c3; 
   }
 
   .icon {
@@ -195,7 +195,7 @@ body{
     color: #ffffff;
     font-size: 16px;
     outline: none;
-    cursor: text; /* ทำให้ cursor เป็น text ใน input */
+    cursor: text;
   }
 
   .search-bar input::placeholder {
@@ -259,11 +259,11 @@ body{
     content: '';
     position: absolute;
     left: 0;
-    bottom: -35%; /* ปรับค่าลบเพิ่มเพื่อเลื่อนเส้นลง */
+    bottom: -35%; 
     width: 100%;
     height: 3.25px;
     background-color: #000000;
-    border-top-left-radius: 100px;  /* โค้งมนที่มุมซ้าย */
+    border-top-left-radius: 100px; 
     border-top-right-radius: 100px;
   }
 

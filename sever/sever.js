@@ -22,7 +22,7 @@ app.get('/api/folders', (req, res) => {
             .filter(item => item.isDirectory())
             .map(folder => ({
                 name: folder.name,
-                path: folder.name, // ส่งคืนชื่อโฟลเดอร์
+                path: folder.name,
                 files: fs.readdirSync(path.join(baseFolderPath, folder.name)).filter(file => file.endsWith('.csv')) // อ่านไฟล์ในโฟลเดอร์
             }));
 
@@ -30,7 +30,7 @@ app.get('/api/folders', (req, res) => {
             .filter(item => item.isFile() && item.name.endsWith('.csv'))
             .map(file => ({
                 name: file.name,
-                path: file.name // ส่งคืนชื่อไฟล์ CSV
+                path: file.name 
             }));
 
         res.json({ folders, csvFiles });
@@ -48,8 +48,8 @@ app.get('/api/file/:fileName', (req, res) => {
             return res.status(500).send('Error reading file');
         }
 
-        const parsedData = Papa.parse(data, { header: true }); // แปลงข้อมูล CSV เป็น JSON
-        res.json(parsedData.data); // ส่งข้อมูลที่แปลงแล้ว
+        const parsedData = Papa.parse(data, { header: true }); 
+        res.json(parsedData.data);
     });
 });
 
