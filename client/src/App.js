@@ -7,55 +7,71 @@ import { faTrophy } from '@fortawesome/free-solid-svg-icons';
 import { GoCode } from "react-icons/go";
 import { VscLayoutPanelCenter } from "react-icons/vsc";
 import { BsChatRightText } from "react-icons/bs";
+import { FaRegFolder } from "react-icons/fa";
+import { GrColumns } from "react-icons/gr";
+import { IoMdArrowDropright } from "react-icons/io";
+import { FaRegFileAlt } from "react-icons/fa";
 import img from './img/idk.png';
 
 import './App.css';
 
 function App() {
   const [folders, setFolders] = useState([]);
-    const [csvFiles, setCsvFiles] = useState([]);
-    const [fileContent, setFileContent] = useState(null);
-    const [selectedFolder, setSelectedFolder] = useState(null);
+  const [csvFiles, setCsvFiles] = useState([]);
+  const [fileContent, setFileContent] = useState(null);
+  const [selectedFolder, setSelectedFolder] = useState(null);
+  const [selectedFile, setSelectedFile] = useState('');
+  const [fileSize, setFileSize] = useState(null);
 
-    const fetchFoldersAndFiles = async () => {
-        try {
-            const response = await fetch('http://localhost:5000/api/folders');
-            const data = await response.json();
-            setFolders(data.folders);
-            setCsvFiles(data.csvFiles);
-        } catch (error) {
-            console.error('Error fetching folders:', error);
-        }
-    };
-
-    const fetchFileContent = async (fileName) => {
-      try { 
-          const response = await fetch(`http://localhost:5000/api/file/${fileName}`);
-          if (!response.ok) {
-              const errorDetails = await response.text(); // รับรายละเอียดข้อผิดพลาด
-              throw new Error(`HTTP error! status: ${response.status}, Details: ${errorDetails}`);
-          }
-          const data = await response.json();
-          setFileContent(data);
+  const fetchFoldersAndFiles = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/folders');
+      const data = await response.json();
+      setFolders(data.folders);
+      setCsvFiles(data.csvFiles);
       } catch (error) {
-          console.error('Error fetching file content:', error);
+          console.error('Error fetching folders:', error);
       }
-    };
+  };
 
-    const handleFileClick = (fileName) => {
-      console.log(`Clicked file: ${fileName}`);
-      fetchFileContent(fileName);
+  const fetchFileContent = async (fileName) => {
+    try { 
+        const response = await fetch(`http://localhost:5000/api/file/${fileName}`);
+        if (!response.ok) {
+            const errorDetails = await response.text(); 
+             throw new Error(`HTTP error! status: ${response.status}, Details: ${errorDetails}`);
+         }
+         const data = await response.json();
+         setFileContent(data);
+
+         const size = response.headers.get('Content-Length');
+          if (size) {
+              const sizeInMB = size / (1024 * 1024);
+              const sizeInKB = size / 1024;
+              setFileSize(sizeInMB >= 1 ? `${sizeInMB.toFixed(2)} MB` : `${sizeInKB.toFixed(2)} kB`);
+          } else {
+              setFileSize('Unknown size');
+          }
+     } catch (error) {
+         console.error('Error fetching file content:', error);
+     }
+  };
+    
+  const handleFileClick = (fileName) => {
+    console.log(`Clicked file: ${fileName}`);
+    setSelectedFile(fileName);
+    fetchFileContent(fileName);
   };
   
   const handleFolderClick = (folder) => {
-      console.log(`Clicked folder: ${folder.name}`);
-      setSelectedFolder(folder);
+    console.log(`Clicked folder: ${folder.name}`);
+    setSelectedFolder(folder);
   };
   
 
-    useEffect(() => {
-        fetchFoldersAndFiles();
-    }, []);
+  useEffect(() => {
+      fetchFoldersAndFiles();
+  }, []);
 
 
   return (
@@ -195,44 +211,93 @@ function App() {
         <br/><br/><br/>
 
 
+        <div className="onRight">
+          <p className="dataEx">Data Explorer</p>
+          <div>
+            {folders.map((folder, index) => (
+              <div key={index}>
+                    
+                <h2 className="folderName" onClick={() => handleFolderClick(folder) }><FaRegFolder /> {folder.name}</h2>
+                <ul className="noneDot">
+                  {folder.files.map((file, fileIndex) => (
+                    <li className="pointer" key={fileIndex} onClick={() => handleFileClick(file)}><IoMdArrowDropright /> <GrColumns /> {file}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <ul className="noneDot">
+            {csvFiles.map((file, index) => (
+              <li key={index} onClick={() => handleFileClick(file.name)}><GrColumns /> {file.name}</li>
+            ))}
+          </ul>
+        </div>
 
-
-
+        <div className="contain2">
+          <div className="BLUEE">
+            {fileContent && (
+              <div  className="idk">
+                <p className="upp"> 
+                  <span className="fileName">
+                    {selectedFile}
+                  </span>
+                  <span className="fileSize">
+                    ({fileSize})
+                  </span>
+                </p>
+                <Table striped bordered hover>
+                  <thead>
+                    <tr>
+                      {Object.keys(fileContent[0]).map((key, index) => (
+                        <th key={index}>{key}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fileContent.map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {Object.values(row).map((value, colIndex) => (
+                          <td key={colIndex}>{value}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+            )}
+          </div>
+        </div>
 
         <div>
-            <h1>File Explorer</h1>
-            <div>
-                {folders.map((folder, index) => (
-                    <div key={index}>
-                        <h2 onClick={() => handleFolderClick(folder)}>{folder.name}</h2>
-                        <ul>
-                            {folder.files.map((file, fileIndex) => (
-                                <li key={fileIndex} onClick={() => handleFileClick(file)}>{file}</li>
-                            ))}
-                        </ul>
-                    </div>
-                ))}
-            </div>
+          <span className="metaNote">
+            <FaRegFileAlt /> 
+          </span>
 
-            <h2>CSV Files</h2>
-            <ul>
-                {csvFiles.map((file, index) => (
-                    <li key={index} onClick={() => handleFileClick(file.name)}>{file.name}</li>
-                ))}
-            </ul>
+          <span className="Metadata">
+            Metadata
+          </span>
+        </div>
 
-            {fileContent && (
-                <div>
-                    <h2>File Content:</h2>
-                    <pre>{JSON.stringify(fileContent, null, 2)}</pre> {/* แสดงข้อมูลภายในไฟล์ */}
-                </div>
-            )}
+        
+
+
+        <hr className="editHr"/>
+
+        <div>
+          <span className="License">
+            License
+          </span>
+          <br/>
+          <p className="competRule">
+            Subject to Competition Rules
+          </p>
+         
         </div>
 
 
+        <hr className="editHr"/>
 
-
-        <br/><br/><br/><br/><br/><br/><br/><br/>
+        <br/><br/><br/><br/><br/><br/>
 
       </div>
 

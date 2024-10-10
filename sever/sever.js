@@ -33,11 +33,11 @@ app.get('/api/folders', (req, res) => {
                 path: file.name // ส่งคืนชื่อไฟล์ CSV
             }));
 
-        res.json({ folders, csvFiles }); // ส่งกลับเป็น JSON ของโฟลเดอร์และไฟล์
+        res.json({ folders, csvFiles });
     });
 });
 
-// API สำหรับดึงข้อมูลจากไฟล์ CSV
+
 app.get('/api/file/:fileName', (req, res) => {
     const { fileName } = req.params;
     const filePath = path.join(__dirname, 'csv-files', fileName);
