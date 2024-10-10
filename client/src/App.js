@@ -12,41 +12,45 @@ import img from './img/idk.png';
 import './App.css';
 
 function App() {
-  const [data, setData] = useState([]);
-  const [selectedFileData, setSelectedFileData] = useState([]);
-  const [fileNames, setFileNames] = useState([]);
+  const [folders, setFolders] = useState([]);
+    const [csvFiles, setCsvFiles] = useState([]);
+    const [fileContent, setFileContent] = useState(null);
+    const [selectedFolder, setSelectedFolder] = useState(null);
 
-  // ฟังก์ชันดึงข้อมูลชื่อไฟล์จาก API
-  const fetchFileNames = async () => {
-      try {
-          const response = await fetch('http://localhost:5000/api/files'); // เปลี่ยน URL ตามที่เซิร์ฟเวอร์ของคุณรัน
-          if (!response.ok) {
-              throw new Error('Network response was not ok');
-          }
-          const result = await response.json();
-          setFileNames(result);
-      } catch (error) {
-          console.error('Error fetching file names:', error);
-      }
-  };
+    const fetchFoldersAndFiles = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/folders');
+            const data = await response.json();
+            setFolders(data.folders);
+            setCsvFiles(data.csvFiles);
+        } catch (error) {
+            console.error('Error fetching folders:', error);
+        }
+    };
 
-  // ฟังก์ชันดึงข้อมูลจากไฟล์ที่เลือก
-  const fetchFileData = async (fileName) => {
-      try {
-          const response = await fetch(`http://localhost:5000/api/data/${fileName}`);
-          if (!response.ok) {
-              throw new Error('Network response was not ok');
-          }
-          const result = await response.json();
-          setSelectedFileData(result);
-      } catch (error) {
-          console.error('Error fetching file data:', error);
-      }
-  };
+    const fetchFileContent = async (fileName) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/file/${fileName}`);
+            const data = await response.json();
+            setFileContent(data);
+        } catch (error) {
+            console.error('Error fetching file content:', error);
+        }
+    };
 
-  useEffect(() => {
-      fetchFileNames();
-  }, []);
+    const handleFolderClick = (folder) => {
+        // โหลดไฟล์ภายในโฟลเดอร์
+        setSelectedFolder(folder);
+    };
+
+    const handleFileClick = (fileName) => {
+        fetchFileContent(fileName);
+    };
+
+    useEffect(() => {
+        fetchFoldersAndFiles();
+    }, []);
+
 
   return (
     <div>
@@ -186,48 +190,41 @@ function App() {
 
 
 
+
+
+
         <div>
-      {/* ... Sidebar and other components remain unchanged ... */}
-
-      <div className="container">
-        <h1>File List</h1>
-        <ul>
-          {fileNames.map((fileName, index) => (
-            <li key={index} onClick={() => fetchFileData(fileName)} style={{ cursor: 'pointer', color: 'blue' }}>
-              {fileName}
-            </li>
-          ))}
-        </ul>
-
-        {selectedFileData.length > 0 && (
-          <div>
-            <h2>CSV Data Table</h2>
-            <table>
-              <thead>
-                <tr>
-                  {selectedFileData[0] && Object.keys(selectedFileData[0]).map((key) => (
-                    <th key={key}>{key}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {selectedFileData.map((row, index) => (
-                  <tr key={index}>
-                    {Object.values(row).map((value, idx) => (
-                      <td key={idx}>{value}</td>
-                    ))}
-                  </tr>
+            <h1>File Explorer</h1>
+            <div>
+                {folders.map((folder, index) => (
+                    <div key={index}>
+                        <h2 onClick={() => handleFolderClick(folder)}>{folder.name}</h2>
+                        <ul>
+                            {folder.files.map((file, fileIndex) => (
+                                <li key={fileIndex} onClick={() => handleFileClick(file)}>{file}</li>
+                            ))}
+                        </ul>
+                    </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+            </div>
 
-        {/* ... Other components remain unchanged ... */}
-      </div>
-    </div>
+            <h2>CSV Files</h2>
+            <ul>
+                {csvFiles.map((file, index) => (
+                    <li key={index} onClick={() => handleFileClick(file.name)}>{file.name}</li>
+                ))}
+            </ul>
 
-    
+            {fileContent && (
+                <div>
+                    <h2>File Content:</h2>
+                    <pre>{JSON.stringify(fileContent, null, 2)}</pre> {/* แสดงข้อมูลภายในไฟล์ */}
+                </div>
+            )}
+        </div>
+
+
+
 
         <br/><br/><br/><br/><br/><br/><br/><br/>
 
