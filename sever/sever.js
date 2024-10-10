@@ -66,10 +66,17 @@ app.get('/api/folders', (req, res) => {
             .filter(item => item.isDirectory())
             .map(folder => ({
                 name: folder.name,
-                files: fs.readdirSync(path.join(baseFolderPath, folder.name)).filter(file => file.endsWith('.csv')) // อ่านไฟล์ในโฟลเดอร์
+                files: fs.readdirSync(path.join(baseFolderPath, folder.name)).filter(file => file.endsWith('.csv'))
             }));
 
-        res.json({ folders });
+        const csvFiles = items
+            .filter(item => item.isFile() && item.name.endsWith('.csv'))
+            .map(file => ({
+                name: file.name,
+                path: file.name
+            }));
+
+        res.json({ folders, csvFiles });
     });
 });
 

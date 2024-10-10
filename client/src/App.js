@@ -29,23 +29,29 @@ function App() {
     };
 
     const fetchFileContent = async (fileName) => {
-        try {
-            const response = await fetch(`http://localhost:5000/api/file/${fileName}`);
-            const data = await response.json();
-            setFileContent(data);
-        } catch (error) {
-            console.error('Error fetching file content:', error);
-        }
-    };
-
-    const handleFolderClick = (folder) => {
-        // โหลดไฟล์ภายในโฟลเดอร์
-        setSelectedFolder(folder);
+      try { 
+          const response = await fetch(`http://localhost:5000/api/file/${fileName}`);
+          if (!response.ok) {
+              const errorDetails = await response.text(); // รับรายละเอียดข้อผิดพลาด
+              throw new Error(`HTTP error! status: ${response.status}, Details: ${errorDetails}`);
+          }
+          const data = await response.json();
+          setFileContent(data);
+      } catch (error) {
+          console.error('Error fetching file content:', error);
+      }
     };
 
     const handleFileClick = (fileName) => {
-        fetchFileContent(fileName);
-    };
+      console.log(`Clicked file: ${fileName}`);
+      fetchFileContent(fileName);
+  };
+  
+  const handleFolderClick = (folder) => {
+      console.log(`Clicked folder: ${folder.name}`);
+      setSelectedFolder(folder);
+  };
+  
 
     useEffect(() => {
         fetchFoldersAndFiles();
