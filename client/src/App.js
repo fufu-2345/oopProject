@@ -65,7 +65,7 @@ function App() {
         throw new Error(`HTTP error! status: ${response.status}, Details: ${errorDetails}`);
       }
       const data = await response.json();
-      setFileContent(data); // Ensure this is an array or adjust accordingly
+      setFileContent(data); 
     } catch (error) {
       console.error('Error fetching DICOM content:', error);
     }
