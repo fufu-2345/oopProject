@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const Papa = require('papaparse');
+const dicomParser = require('dicom-parser');
 const cors = require('cors');
 
 const app = express();
@@ -20,11 +21,17 @@ app.get('/api/folders', (req, res) => {
 
         const folders = items
             .filter(item => item.isDirectory())
-            .map(folder => ({
-                name: folder.name,
-                path: folder.name,
-                files: fs.readdirSync(path.join(baseFolderPath, folder.name)).filter(file => file.endsWith('.csv')) // อ่านไฟล์ในโฟลเดอร์
-            }));
+            .map(folder => {
+                const folderPath = path.join(baseFolderPath, folder.name);
+                const files = fs.readdirSync(folderPath);
+                const csvFiles = files.filter(file => file.endsWith('.csv'));
+                const dcmFiles = files.filter(file => file.endsWith('.dcm'));
+
+                return {
+                    name: folder.name,
+                    files: [...csvFiles, ...dcmFiles] // Combine CSV and DICOM files
+                };
+            });
 
         const csvFiles = items
             .filter(item => item.isFile() && item.name.endsWith('.csv'))
@@ -37,7 +44,6 @@ app.get('/api/folders', (req, res) => {
     });
 });
 
-
 app.get('/api/file/:fileName', (req, res) => {
     const { fileName } = req.params;
     const filePath = path.join(__dirname, 'csv-files', fileName);
@@ -48,35 +54,29 @@ app.get('/api/file/:fileName', (req, res) => {
             return res.status(500).send('Error reading file');
         }
 
-        const parsedData = Papa.parse(data, { header: true }); 
+        const parsedData = Papa.parse(data, { header: true });
         res.json(parsedData.data);
     });
 });
 
-app.get('/api/folders', (req, res) => {
-    const baseFolderPath = path.join(__dirname, 'csv-files');
+app.get('/api/dcm/:folderName/:fileName', (req, res) => {
+    const { folderName, fileName } = req.params;
+    const filePath = path.join(__dirname, 'csv-files', folderName, fileName); // Adjust path to include folder
 
-    fs.readdir(baseFolderPath, { withFileTypes: true }, (err, items) => {
+    fs.readFile(filePath, (err, data) => {
         if (err) {
-            console.error('Error reading directory:', err);
-            return res.status(500).send('Error reading directory');
+            console.error('Error reading DICOM file:', err);
+            return res.status(500).send('Error reading DICOM file');
         }
 
-        const folders = items
-            .filter(item => item.isDirectory())
-            .map(folder => ({
-                name: folder.name,
-                files: fs.readdirSync(path.join(baseFolderPath, folder.name)).filter(file => file.endsWith('.csv'))
-            }));
-
-        const csvFiles = items
-            .filter(item => item.isFile() && item.name.endsWith('.csv'))
-            .map(file => ({
-                name: file.name,
-                path: file.name
-            }));
-
-        res.json({ folders, csvFiles });
+        try {
+            const byteArray = new Uint8Array(data);
+            const dicomData = dicomParser.parseDicom(byteArray);
+            res.json(dicomData);
+        } catch (parseError) {
+            console.error('Error parsing DICOM file:', parseError);
+            return res.status(500).send('Error parsing DICOM file');
+        }
     });
 });
 

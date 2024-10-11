@@ -29,48 +29,66 @@ function App() {
       const data = await response.json();
       setFolders(data.folders);
       setCsvFiles(data.csvFiles);
-      } catch (error) {
-          console.error('Error fetching folders:', error);
-      }
+    } catch (error) {
+      console.error('Error fetching folders:', error);
+    }
   };
 
   const fetchFileContent = async (fileName) => {
-    try { 
-        const response = await fetch(`http://localhost:5000/api/file/${fileName}`);
-        if (!response.ok) {
-            const errorDetails = await response.text(); 
-             throw new Error(`HTTP error! status: ${response.status}, Details: ${errorDetails}`);
-         }
-         const data = await response.json();
-         setFileContent(data);
+    try {
+      const response = await fetch(`http://localhost:5000/api/file/${fileName}`);
+      if (!response.ok) {
+        const errorDetails = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, Details: ${errorDetails}`);
+      }
+      const data = await response.json();
+      setFileContent(data);
 
-         const size = response.headers.get('Content-Length');
-          if (size) {
-              const sizeInMB = size / (1024 * 1024);
-              const sizeInKB = size / 1024;
-              setFileSize(sizeInMB >= 1 ? `${sizeInMB.toFixed(2)} MB` : `${sizeInKB.toFixed(2)} kB`);
-          } else {
-              setFileSize('Unknown size');
-          }
-     } catch (error) {
-         console.error('Error fetching file content:', error);
-     }
+      const size = response.headers.get('Content-Length');
+      if (size) {
+        const sizeInMB = size / (1024 * 1024);
+        const sizeInKB = size / 1024;
+        setFileSize(sizeInMB >= 1 ? `${sizeInMB.toFixed(2)} MB` : `${sizeInKB.toFixed(2)} kB`);
+      } else {
+        setFileSize('Unknown size');
+      }
+    } catch (error) {
+      console.error('Error fetching file content:', error);
+    }
   };
-    
+
+  const fetchDcmContent = async (folderName, fileName) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/dcm/${folderName}/${fileName}`);
+      if (!response.ok) {
+        const errorDetails = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, Details: ${errorDetails}`);
+      }
+      const data = await response.json();
+      setFileContent(data); // Ensure this is an array or adjust accordingly
+    } catch (error) {
+      console.error('Error fetching DICOM content:', error);
+    }
+  };
+
   const handleFileClick = (fileName) => {
     console.log(`Clicked file: ${fileName}`);
     setSelectedFile(fileName);
     fetchFileContent(fileName);
   };
-  
+
+  const handleDcmFileClick = (folderName, fileName) => {
+    console.log(`Clicked DICOM file: ${fileName}`);
+    fetchDcmContent(folderName, fileName);
+  };
+
   const handleFolderClick = (folder) => {
     console.log(`Clicked folder: ${folder.name}`);
     setSelectedFolder(folder);
   };
-  
 
   useEffect(() => {
-      fetchFoldersAndFiles();
+    fetchFoldersAndFiles();
   }, []);
 
 
@@ -212,61 +230,68 @@ function App() {
 
 
         <div className="onRight">
-          <p className="dataEx">Data Explorer</p>
-          <div>
-            {folders.map((folder, index) => (
-              <div key={index}>
-                    
-                <h2 className="folderName" onClick={() => handleFolderClick(folder) }><FaRegFolder /> {folder.name}</h2>
-                <ul className="noneDot">
-                  {folder.files.map((file, fileIndex) => (
-                    <li className="pointer" key={fileIndex} onClick={() => handleFileClick(file)}><IoMdArrowDropright /> <GrColumns /> {file}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-          <ul className="noneDot">
-            {csvFiles.map((file, index) => (
-              <li key={index} onClick={() => handleFileClick(file.name)}><GrColumns /> {file.name}</li>
-            ))}
-          </ul>
+        <p className="dataEx">Data Explorer</p>
+        <div>
+          {folders.map((folder, index) => (
+            <div key={index}>
+              <h2 className="folderName" onClick={() => handleFolderClick(folder)}>
+                <FaRegFolder /> {folder.name}
+              </h2>
+              <ul className="noneDot">
+                {folder.files.map((file, fileIndex) => (
+                  <li className="pointer" key={fileIndex} onClick={() => {
+                    if (file.endsWith('.dcm')) {
+                      handleDcmFileClick(folder.name, file);
+                    } else {
+                      handleFileClick(file);
+                    }
+                  }}>
+                    <IoMdArrowDropright /> <GrColumns /> {file}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
+        <ul className="noneDot">
+          {csvFiles.map((file, index) => (
+            <li className="pointer" key={index} onClick={() => handleFileClick(file.name)}>
+              <GrColumns /> {file.name}
+            </li>
+          ))}
+        </ul>
+      </div>
 
-        <div className="contain2">
-          <div className="BLUEE">
-            {fileContent && (
-              <div  className="idk">
-                <p className="upp"> 
-                  <span className="fileName">
-                    {selectedFile}
-                  </span>
-                  <span className="fileSize">
-                    ({fileSize})
-                  </span>
-                </p>
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      {Object.keys(fileContent[0]).map((key, index) => (
-                        <th key={index}>{key}</th>
+      <div className="contain2">
+        <div className="BLUEE">
+          {fileContent && (
+            <div className="idk">
+              <p className="upp">
+                <span className="fileName">{selectedFile}</span>
+                <span className="fileSize">({fileSize})</span>
+              </p>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    {fileContent.length > 0 && Object.keys(fileContent[0]).map((key, index) => (
+                      <th key={index}>{key}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {fileContent.map((row, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {Object.values(row).map((value, colIndex) => (
+                        <td key={colIndex}>{value}</td>
                       ))}
                     </tr>
-                  </thead>
-                  <tbody>
-                    {fileContent.map((row, rowIndex) => (
-                      <tr key={rowIndex}>
-                        {Object.values(row).map((value, colIndex) => (
-                          <td key={colIndex}>{value}</td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
-            )}
-          </div>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          )}
         </div>
+      </div>
 
         <div>
           <span className="metaNote">
