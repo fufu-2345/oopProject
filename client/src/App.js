@@ -6,6 +6,7 @@ import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
 import dicomParser from 'dicom-parser';
 import Papa from 'papaparse';
 import img from './img/idk.png';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 
 import { FaBars } from 'react-icons/fa';
 import { Button, Container, Form, Table } from 'react-bootstrap';
@@ -30,7 +31,7 @@ function App() {
   const [imageId, setImageId] = useState('');
   const [csvData, setCsvData] = useState([]);
   const [openFolders, setOpenFolders] = useState({});
-  const [data, setData] = useState(null);
+  const [showData, setData] = useState(null);
 
   const [selectedFile, setSelectedFile] = useState('');
   const [fileSize, setFileSize] = useState(null);
@@ -148,7 +149,7 @@ function App() {
         if (csvData.length === 0) return null;
 
         return (
-            <div className="contain2">
+            <div>
               <div className="idk">
                 <p className="upp">
                   <span className="fileName">{selectedFile}</span>
@@ -156,20 +157,20 @@ function App() {
                 </p>
                   <table>
                       <thead>
-                          <tr>
-                              {Object.keys(csvData[0]).map((header, index) => (
-                                  <th key={index}>{header}</th>
-                              ))}
-                          </tr>
+                        <tr>
+                          {Object.keys(csvData[0]).map((header, index) => (
+                            <th key={index}>{header}</th>
+                          ))}
+                        </tr>
                       </thead>
                       <tbody>
-                          {csvData.map((row, rowIndex) => (
-                              <tr key={rowIndex}>
-                                  {Object.values(row).map((cell, cellIndex) => (
-                                      <td key={cellIndex}>{cell}</td>
-                                  ))}
-                              </tr>
-                          ))}
+                        {csvData.map((row, rowIndex) => (
+                          <tr key={rowIndex}>
+                            {Object.values(row).map((cell, cellIndex) => (
+                              <td key={cellIndex}>{cell}</td>
+                            ))}
+                          </tr>
+                        ))}
                       </tbody>
                   </table>
               </div>
@@ -205,6 +206,19 @@ function App() {
     const isPrintable = (str) => {
         return /^[\x20-\x7E]*$/.test(str);
     };
+
+    const MyBarChart = () => {
+      return (
+          <BarChart width={600} height={300} data={showData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="pv" fill="#007ba8" />
+          </BarChart>
+      );
+  };
 
 
 
@@ -346,12 +360,12 @@ function App() {
         <br/><br/><br/>
 
 
-        <div>
+        <div  className="contain2">
           <div className="onRight">
             <p className="dataEx">Data Explorer</p>
             {files ? randerTree(files) : <p>Loading files...</p>}
           </div>
-          <div>
+          <div className="contain3">
             <div>
               <h2>DICOM Image</h2>
               <div id="dicomImage" style={{ width: '512px', height: '512px' }}></div>
@@ -367,7 +381,7 @@ function App() {
                 {renderCSVData()}
               </div>
                 )}
-            </div>
+          </div>
         </div>
 
 

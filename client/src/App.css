@@ -8,7 +8,7 @@ body{
 
   .img {
     position: absolute;
-    top: 5.5%;
+    top: 3.5%;
     left: 73%;
     width: 22%;
     height: auto;
@@ -365,6 +365,8 @@ body{
   }
 
   .idk {
+    position:absolute;
+    top: 107%;
     padding: 20px;
     border: 1px solid #dadce0;
     border-radius: 12.5px;
@@ -398,7 +400,7 @@ body{
 
   .onRight{
     position: absolute;
-    top: 50%;
+    top: 45%;
     left: 70%;
     width: 28%;
 
@@ -409,9 +411,18 @@ body{
   }
 
   .contain2{
-    height: 500px;
+    height: 1800px;
     width: 65%;
     background-color: #ffffff;
+  }
+
+  .contain3{
+    position: relative;
+    top: -4.5%;
+  }
+
+  .contain4{
+
   }
 
   .Metadata{
