@@ -30,6 +30,7 @@ function App() {
   const [imageId, setImageId] = useState('');
   const [csvData, setCsvData] = useState([]);
   const [openFolders, setOpenFolders] = useState({});
+  const [data, setData] = useState(null);
 
   const [selectedFile, setSelectedFile] = useState('');
   const [fileSize, setFileSize] = useState(null);
@@ -46,7 +47,7 @@ function App() {
     }).catch(error => {
         console.error('Error', error);
     });
-}, []);
+  }, []);
 
 
     const handleFileClick = (filePath) => {
@@ -346,37 +347,27 @@ function App() {
 
 
         <div>
-
           <div className="onRight">
             <p className="dataEx">Data Explorer</p>
             {files ? randerTree(files) : <p>Loading files...</p>}
           </div>
-              
-          
-
-                <div className='w-[83%] p-4 mr-10'>
-                    <div className="border border-gray-300 p-4 mb-4">
-                        <h2 className='mb-10'>DICOM Image</h2>
-                        <div id="dicomImage" style={{ width: '512px', height: '512px' }}></div>
-                    </div>
-
-                    {dicomData && (
-                        <div className="border border-gray-300 p-4 mb-4">
-                            <h2 className='mb-10'>DICOM Metadata</h2>
-                            <pre>{renderMetadata(dicomData)}</pre>
-                        </div>
-                    )}
-
-                    {csvData.length > 0 && (
-                        <div>
-                          {renderCSVData()}
-                        </div>
-                    )}
-                </div>
-
-                
-
-            
+          <div>
+            <div>
+              <h2>DICOM Image</h2>
+              <div id="dicomImage" style={{ width: '512px', height: '512px' }}></div>
+            </div>
+            {dicomData && (
+              <div>
+                <h2>DICOM Metadata</h2>
+                <pre>{renderMetadata(dicomData)}</pre>
+              </div>
+            )}
+            {csvData.length > 0 && (
+              <div>
+                {renderCSVData()}
+              </div>
+                )}
+            </div>
         </div>
 
 
