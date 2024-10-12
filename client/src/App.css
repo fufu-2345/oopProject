@@ -27,8 +27,6 @@ body{
     z-index: 999;
   }
 
-  
-  
   .sidebar ul {
     list-style-type: none;
     padding: 0;
@@ -372,7 +370,8 @@ body{
     border-radius: 12.5px;
     max-height: 300px; 
     overflow-y: auto; 
-    width: 60%; 
+    overflow-x: auto;
+    width: 100%; 
     margin-top: -50px;
   }
 
@@ -399,7 +398,7 @@ body{
 
   .onRight{
     position: absolute;
-    top: 59%;
+    top: 50%;
     left: 70%;
     width: 28%;
 
@@ -411,6 +410,7 @@ body{
 
   .contain2{
     height: 500px;
+    width: 65%;
     background-color: #ffffff;
   }
 

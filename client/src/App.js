@@ -50,17 +50,18 @@ function App() {
 
 
     const handleFileClick = (filePath) => {
-        const isDicom = filePath.endsWith('.dcm')
-        const isCSV = filePath.endsWith('.csv')
+      const isDicom = filePath.endsWith('.dcm')
+      const isCSV = filePath.endsWith('.csv')
 
         if (isDicom) {
             const fileURL = `http://localhost:5000/read-dicom?file=${filePath}`
             axios.get(fileURL, { responseType: 'arraybuffer' }).then(response => {
-                const byteArray = new Uint8Array(response.data)
-                const dataSet = dicomParser.parseDicom(byteArray)
-                setDicomData(dataSet)
-                const imageId = `wadouri:${fileURL}`
-                setImageId(imageId)
+              const byteArray = new Uint8Array(response.data)
+              const dataSet = dicomParser.parseDicom(byteArray)
+              setDicomData(dataSet);
+              const imageId = `wadouri:${fileURL}`;
+              setImageId(imageId);
+
             }).catch(error => {
                 console.log('Error ', error)
             })
@@ -70,12 +71,23 @@ function App() {
                 Papa.parse(response.data, {
                     header: true,
                     complete: (result) => {
-                        setCsvData(result.data)
+                        setCsvData(result.data);
                     },
                     error: (error) => {
-                        console.error('Error : ', error)
+                        console.error('Error : ', error);
                     }
                 })
+
+              setSelectedFile(filePath.replace(/^\//, ''));
+              const size = response.headers.get('Content-Length');
+              if (size) {
+                const sizeInMB = size / (1024 * 1024);
+                const sizeInKB = size / 1024;
+                setFileSize(sizeInMB >= 1 ? `${sizeInMB.toFixed(2)} MB` : `${sizeInKB.toFixed(2)} kB`);
+              } else {
+                  setFileSize('Unknown size');
+              }
+
             }).catch(error => {
                 console.error('Error : ', error)
             })
@@ -135,26 +147,31 @@ function App() {
         if (csvData.length === 0) return null;
 
         return (
-            <div>
-                <h2>CSV Data</h2>
-                <table className="idk">
-                    <thead>
-                        <tr>
-                            {Object.keys(csvData[0]).map((header, index) => (
-                                <th key={index}>{header}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {csvData.map((row, rowIndex) => (
-                            <tr key={rowIndex}>
-                                {Object.values(row).map((cell, cellIndex) => (
-                                    <td key={cellIndex}>{cell}</td>
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className="contain2">
+              <div className="idk">
+                <p className="upp">
+                  <span className="fileName">{selectedFile}</span>
+                  <span className="fileSize">({fileSize})</span>
+                </p>
+                  <table>
+                      <thead>
+                          <tr>
+                              {Object.keys(csvData[0]).map((header, index) => (
+                                  <th key={index}>{header}</th>
+                              ))}
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {csvData.map((row, rowIndex) => (
+                              <tr key={rowIndex}>
+                                  {Object.values(row).map((cell, cellIndex) => (
+                                      <td key={cellIndex}>{cell}</td>
+                                  ))}
+                              </tr>
+                          ))}
+                      </tbody>
+                  </table>
+              </div>
             </div>
         );
     };
@@ -351,8 +368,8 @@ function App() {
                     )}
 
                     {csvData.length > 0 && (
-                        <div className="border border-gray-300 p-4 mb-4">
-                            {renderCSVData()}
+                        <div>
+                          {renderCSVData()}
                         </div>
                     )}
                 </div>
