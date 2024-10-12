@@ -406,7 +406,7 @@ body{
   }
   
   .BLUEE{
-    background-color: #ffffff;
+    background-color: #0008ff;
   }
 
   .contain2{
@@ -463,6 +463,14 @@ body{
   .upp{
     position: relative;
     top: -10px;
+  }
+
+  .marBot{
+    margin-bottom: 5px;
+  }
+
+  #marginBot{
+    margin-bottom: 5px;
   }
 
     * {

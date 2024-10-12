@@ -1,4 +1,12 @@
 import React, { useEffect, useState } from 'react';
+
+import axios from 'axios';
+import cornerstone, { enable } from 'cornerstone-core';
+import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
+import dicomParser from 'dicom-parser';
+import Papa from 'papaparse';
+import img from './img/idk.png';
+
 import { FaBars } from 'react-icons/fa';
 import { Button, Container, Form, Table } from 'react-bootstrap';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -11,85 +19,176 @@ import { FaRegFolder } from "react-icons/fa";
 import { GrColumns } from "react-icons/gr";
 import { IoMdArrowDropright } from "react-icons/io";
 import { FaRegFileAlt } from "react-icons/fa";
-import img from './img/idk.png';
 
 import './App.css';
 
+///////https://www.kaggle.com/competitions/rsna-2024-lumbar-spine-degenerative-classification/data
+
 function App() {
-  const [folders, setFolders] = useState([]);
-  const [csvFiles, setCsvFiles] = useState([]);
-  const [fileContent, setFileContent] = useState(null);
-  const [selectedFolder, setSelectedFolder] = useState(null);
+  const [files, setFiles] = useState(null);
+  const [dicomData, setDicomData] = useState(null);
+  const [imageId, setImageId] = useState('');
+  const [csvData, setCsvData] = useState([]);
+  const [openFolders, setOpenFolders] = useState({});
+
   const [selectedFile, setSelectedFile] = useState('');
   const [fileSize, setFileSize] = useState(null);
 
-  const fetchFoldersAndFiles = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/folders');
-      const data = await response.json();
-      setFolders(data.folders);
-      setCsvFiles(data.csvFiles);
-    } catch (error) {
-      console.error('Error fetching folders:', error);
-    }
-  };
-
-  const fetchFileContent = async (fileName) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/file/${fileName}`);
-      if (!response.ok) {
-        const errorDetails = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, Details: ${errorDetails}`);
-      }
-      const data = await response.json();
-      setFileContent(data);
-
-      const size = response.headers.get('Content-Length');
-      if (size) {
-        const sizeInMB = size / (1024 * 1024);
-        const sizeInKB = size / 1024;
-        setFileSize(sizeInMB >= 1 ? `${sizeInMB.toFixed(2)} MB` : `${sizeInKB.toFixed(2)} kB`);
-      } else {
-        setFileSize('Unknown size');
-      }
-    } catch (error) {
-      console.error('Error fetching file content:', error);
-    }
-  };
-
-  const fetchDcmContent = async (folderName, fileName) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/dcm/${folderName}/${fileName}`);
-      if (!response.ok) {
-        const errorDetails = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, Details: ${errorDetails}`);
-      }
-      const data = await response.json();
-      setFileContent(data); 
-    } catch (error) {
-      console.error('Error fetching DICOM content:', error);
-    }
-  };
-
-  const handleFileClick = (fileName) => {
-    console.log(`Clicked file: ${fileName}`);
-    setSelectedFile(fileName);
-    fetchFileContent(fileName);
-  };
-
-  const handleDcmFileClick = (folderName, fileName) => {
-    console.log(`Clicked DICOM file: ${fileName}`);
-    fetchDcmContent(folderName, fileName);
-  };
-
-  const handleFolderClick = (folder) => {
-    console.log(`Clicked folder: ${folder.name}`);
-    setSelectedFolder(folder);
-  };
-
   useEffect(() => {
-    fetchFoldersAndFiles();
-  }, []);
+    cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+    cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+
+    const element = document.getElementById('dicomImage');
+    cornerstone.enable(element);
+
+    axios.get('http://localhost:5000/list-files').then(response => {
+        setFiles(response.data);
+    }).catch(error => {
+        console.error('Error', error);
+    });
+}, []);
+
+
+    const handleFileClick = (filePath) => {
+        const isDicom = filePath.endsWith('.dcm')
+        const isCSV = filePath.endsWith('.csv')
+
+        if (isDicom) {
+            const fileURL = `http://localhost:5000/read-dicom?file=${filePath}`
+            axios.get(fileURL, { responseType: 'arraybuffer' }).then(response => {
+                const byteArray = new Uint8Array(response.data)
+                const dataSet = dicomParser.parseDicom(byteArray)
+                setDicomData(dataSet)
+                const imageId = `wadouri:${fileURL}`
+                setImageId(imageId)
+            }).catch(error => {
+                console.log('Error ', error)
+            })
+        } else if (isCSV) {
+            const fileURL = `http://localhost:5000/read-csv?file=${filePath}`
+            axios.get(fileURL).then(response => {
+                Papa.parse(response.data, {
+                    header: true,
+                    complete: (result) => {
+                        setCsvData(result.data)
+                    },
+                    error: (error) => {
+                        console.error('Error : ', error)
+                    }
+                })
+            }).catch(error => {
+                console.error('Error : ', error)
+            })
+        }
+    }
+
+
+    useEffect(() => {
+        const element = document.getElementById('dicomImage')
+
+        if (imageId) {
+            cornerstone.loadImage(imageId).then(image => {
+                cornerstone.displayImage(element, image)
+            }).catch(error => {
+                console.error('Error : ', error)
+            })
+        }
+    }, [imageId])
+
+
+    //// folder  (set dropdown)
+    const randerTree = (node, currentPath = '') => {
+        if (!node) {
+            return null
+        }
+
+        return (
+            <ul className="noneDot">
+                {node.map((item, index) => {
+                    const path = `${currentPath}/${item.name}`
+                    if (item.type === 'folder') {
+                        return (
+                            <li key={index} className="marBot">
+                                <span className="pointer" onClick={() => setOpenFolders(prev => ({ ...prev,[path]: !prev[path] }))}>
+                                  <IoMdArrowDropright /> <FaRegFolder /> {item.name}
+                                </span>
+                                {openFolders[path] && (
+                                    <div className="ml-4">
+                                       {randerTree(item.contents, path)}
+                                    </div>
+                                )}
+                            </li>
+                        )
+                    } else if (item.type === 'file') {
+                        return (
+                            <li key={index} className="pointer" id="marginBot"onClick={() => handleFileClick(path)}>
+                              <GrColumns />  {item.name}
+                            </li>
+                        );
+                    }
+                    return null;
+                })}
+            </ul>
+        )
+    }
+    const renderCSVData = () => {
+        if (csvData.length === 0) return null;
+
+        return (
+            <div>
+                <h2>CSV Data</h2>
+                <table className="idk">
+                    <thead>
+                        <tr>
+                            {Object.keys(csvData[0]).map((header, index) => (
+                                <th key={index}>{header}</th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {csvData.map((row, rowIndex) => (
+                            <tr key={rowIndex}>
+                                {Object.values(row).map((cell, cellIndex) => (
+                                    <td key={cellIndex}>{cell}</td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+    };
+
+    const renderMetadata = (dataSet) => {
+        let metadata = 'DICOM Metadata:\n';
+        if (dataSet.elements) {
+            Object.entries(dataSet.elements).forEach(([tag, element]) => {
+                let value = 'N/A';
+                try {
+                    value = dataSet.string(tag) || 'N/A';
+                } catch (error) {
+                    console.error(`Error retrieving value for tag ${tag}:`, error);
+                }
+
+                if (value === '' || value === undefined || value === null) {
+                    value = 'N/A (Empty value)';
+                } else if (!isPrintable(value)) {
+                    value = 'N/A (Non-printable characters)';
+                }
+
+                metadata += `${element.name || tag}: ${value}\n`;
+            });
+        } else {
+            metadata += 'No metadata available.\n';
+        }
+        return metadata;
+    };
+
+    const isPrintable = (str) => {
+        return /^[\x20-\x7E]*$/.test(str);
+    };
+
+
 
 
   return (
@@ -229,69 +328,40 @@ function App() {
         <br/><br/><br/>
 
 
-        <div className="onRight">
-        <p className="dataEx">Data Explorer</p>
         <div>
-          {folders.map((folder, index) => (
-            <div key={index}>
-              <h2 className="folderName" onClick={() => handleFolderClick(folder)}>
-                <FaRegFolder /> {folder.name}
-              </h2>
-              <ul className="noneDot">
-                {folder.files.map((file, fileIndex) => (
-                  <li className="pointer" key={fileIndex} onClick={() => {
-                    if (file.endsWith('.dcm')) {
-                      handleDcmFileClick(folder.name, file);
-                    } else {
-                      handleFileClick(file);
-                    }
-                  }}>
-                    <IoMdArrowDropright /> <GrColumns /> {file}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <ul className="noneDot">
-          {csvFiles.map((file, index) => (
-            <li className="pointer" key={index} onClick={() => handleFileClick(file.name)}>
-              <GrColumns /> {file.name}
-            </li>
-          ))}
-        </ul>
-      </div>
 
-      <div className="contain2">
-        <div className="BLUEE">
-          {fileContent && (
-            <div className="idk">
-              <p className="upp">
-                <span className="fileName">{selectedFile}</span>
-                <span className="fileSize">({fileSize})</span>
-              </p>
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    {fileContent.length > 0 && Object.keys(fileContent[0]).map((key, index) => (
-                      <th key={index}>{key}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {fileContent.map((row, rowIndex) => (
-                    <tr key={rowIndex}>
-                      {Object.values(row).map((value, colIndex) => (
-                        <td key={colIndex}>{value}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          )}
+          <div className="onRight">
+            <p className="dataEx">Data Explorer</p>
+            {files ? randerTree(files) : <p>Loading files...</p>}
+          </div>
+              
+          
+
+                <div className='w-[83%] p-4 mr-10'>
+                    <div className="border border-gray-300 p-4 mb-4">
+                        <h2 className='mb-10'>DICOM Image</h2>
+                        <div id="dicomImage" style={{ width: '512px', height: '512px' }}></div>
+                    </div>
+
+                    {dicomData && (
+                        <div className="border border-gray-300 p-4 mb-4">
+                            <h2 className='mb-10'>DICOM Metadata</h2>
+                            <pre>{renderMetadata(dicomData)}</pre>
+                        </div>
+                    )}
+
+                    {csvData.length > 0 && (
+                        <div className="border border-gray-300 p-4 mb-4">
+                            {renderCSVData()}
+                        </div>
+                    )}
+                </div>
+
+                
+
+            
         </div>
-      </div>
+
 
         <div>
           <span className="metaNote">
