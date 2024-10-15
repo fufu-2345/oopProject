@@ -6,7 +6,10 @@ import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
 import dicomParser from 'dicom-parser';
 import Papa from 'papaparse';
 import img from './img/idk.png';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
+import logo from './img/RSNA.png';
+import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+import 'typeface-roboto';
 
 import { FaBars } from 'react-icons/fa';
 import { Button, Container, Form, Table } from 'react-bootstrap';
@@ -23,6 +26,8 @@ import { FaRegFileAlt } from "react-icons/fa";
 
 import './App.css';
 
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
 ///////https://www.kaggle.com/competitions/rsna-2024-lumbar-spine-degenerative-classification/data
 
 function App() {
@@ -32,6 +37,7 @@ function App() {
   const [csvData, setCsvData] = useState([]);
   const [openFolders, setOpenFolders] = useState({});
   const [showData, setData] = useState(null);
+  const [chartData, setChartData] = useState({})
 
   const [selectedFile, setSelectedFile] = useState('');
   const [fileSize, setFileSize] = useState(null);
@@ -110,6 +116,99 @@ function App() {
     }, [imageId])
 
 
+    useEffect(() => {
+      if (csvData.length > 0) {
+          const newChartData = {};
+          const headers = Object.keys(csvData[0]);
+
+          headers.forEach(header => {
+              const values = csvData.map(row => row[header])
+              const numericValues = values.filter(value => !isNaN(parseFloat(value)) && isFinite(value))
+              if (values.length - 1 > 10) {
+                  if (!numericValues.length && values.length) {
+                      newChartData[header] = {
+                          type: 'count',
+                          totalCount: values.length - 1
+                      }
+                  } else {
+                      const counts = numericValues.reduce((acc, value) => {
+                          acc[value] = (acc[value] || 0) + 1;
+                          return acc;
+                      }, {});
+
+                      newChartData[header] = {
+                          type: 'chart',
+                          labels: Object.keys(counts),
+                          datasets: [{
+                              label: header,
+                              data: Object.values(counts),
+                              backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                          }]
+                      };
+                  }
+              } else if (values.length - 1 < 10 && values.length - 1 > 0) {
+                  newChartData[header] = {
+                      type: 'count',
+                      totalCount: values.length - 1
+                  }
+              }
+
+              if (values.length - 1 > 100) {
+                  if (numericValues.length && values.length) {
+                      const binSize = Math.ceil((Math.max(...numericValues.map(Number)) - Math.min(...numericValues.map(Number))) / 10)
+                      const bins = {}
+                      numericValues.forEach(value => {
+                          const binIndex = Math.floor(Number(value) / binSize) * binSize
+                          bins[binIndex] = (bins[binIndex] || 0) + 1
+                      })
+
+                      newChartData[header] = {
+                          type: 'chart',
+                          labels: Object.keys(bins).map(bin => `${bin}-${Number(bin) + binSize}`),
+                          datasets: [{
+                              label: header,
+                              data: Object.values(bins),
+                              backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                          }]
+                      }
+                  } else {
+                      const counts = values.reduce((acc, value) => {
+                          acc[value] = (acc[value] || 0) + 1;
+                          return acc;
+                      }, {});
+
+                      const sortedCounts = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                      const totalCount = values.length - 1;
+
+                      let stringData = sortedCounts.slice(0, 2).map(([label, count]) => ({
+                          label,
+                          count,
+                          percentage: ((count / totalCount) * 100).toFixed(0)
+                      }));
+                      console.log(sortedCounts.length)
+                      const otherCount = totalCount - stringData.reduce((sum, item) => sum + item.count, 0);
+                      if (otherCount > 0) {
+                          stringData.push({
+                              label: `Other (${otherCount})`,
+                              count: otherCount,
+                              percentage: ((otherCount / totalCount) * 100).toFixed(0)
+                          });
+                      }
+
+                      newChartData[header] = {
+                          type: 'string',
+                          stringData
+                      };
+                  }
+              }
+
+          });
+
+          setChartData(newChartData);
+      }
+  }, [csvData]);
+
+
     //// folder  (set dropdown)
     const randerTree = (node, currentPath = '') => {
         if (!node) {
@@ -145,36 +244,87 @@ function App() {
             </ul>
         )
     }
+
     const renderCSVData = () => {
         if (csvData.length === 0) return null;
+        const paginatedData = csvData;
+        const options = {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+              legend: {
+                  display: false,
+              },
+              title: {
+                  display: true,
+              },
+          },
+          scales: {
+              y: {
+                  beginAtZero: true,
+              }
+          }
+      };
 
         return (
-            <div>
-              <div className="idk">
-                <p className="upp">
-                  <span className="fileName">{selectedFile}</span>
-                  <span className="fileSize">({fileSize})</span>
-                </p>
-                  <table>
-                      <thead>
-                        <tr>
-                          {Object.keys(csvData[0]).map((header, index) => (
-                            <th key={index}>{header}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {csvData.map((row, rowIndex) => (
-                          <tr key={rowIndex}>
-                            {Object.values(row).map((cell, cellIndex) => (
-                              <td key={cellIndex}>{cell}</td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                  </table>
-              </div>
+          <div>
+            <div className="idk">
+              <p className="upp">
+                <span className="fileName">{selectedFile}</span>
+                <span className="fileSize">({fileSize})</span>
+              </p>
+              <h2>CSV Data</h2>
+              <table className="">
+                <thead>
+                  <tr>
+                    {Object.keys(csvData[0]).map((header, index) => (
+                      <th key={index}>{header}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    {Object.keys(csvData[0]).map((header, index) => (
+                      <td key={index}>
+                        {chartData[header]?.type === 'count' ? (
+                          <div>
+                            <span>
+                              {chartData[header].totalCount} total values
+                            </span>
+                          </div>
+                          ) : chartData[header]?.type === 'chart' ? (
+                          <div>
+                            <Bar options={options} data={chartData[header]} />
+                          </div>
+                          ) : chartData[header]?.type === 'string' ? (
+                          <div>
+                            <ul>
+                              {chartData[header].stringData.map((item, i) => (
+                                <li key={i}>
+                                  {item.label}: {item.percentage} %
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          ) : (
+                          <div>
+                            <span>Data column</span>
+                          </div>
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                  {paginatedData.map((row, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {Object.values(row).map((cell, cellIndex) => (
+                        <td key={cellIndex}>{cell}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
+          </div>
         );
     };
 
@@ -207,21 +357,6 @@ function App() {
         return /^[\x20-\x7E]*$/.test(str);
     };
 
-    const MyBarChart = () => {
-      return (
-          <BarChart width={600} height={300} data={showData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="pv" fill="#007ba8" />
-          </BarChart>
-      );
-  };
-
-
-
 
   return (
     <div>
@@ -237,6 +372,7 @@ function App() {
 
         <br/>
 
+        
         <button className="create-button">
           <span className="icon">+  </span>
           <p>Create</p>
@@ -254,7 +390,7 @@ function App() {
             <li><i className="fa fa-angle-down iconSide" aria-hidden="true"/>More</li> 
           </ul>
         </ul>
-
+        <hr className="justLine2"/>
       </div>
 
       
@@ -273,7 +409,26 @@ function App() {
             />
         </div>
 
+        <div className="fileright">
+          <p className="FILE">Files</p>
+          <p className="file">147320 files</p>
+
+          <p className="FILE">Size</p>
+          <p className="file">35.34 GB</p>
+
+          <p className="FILE">Type</p>
+          <p className="file">dcm, csv</p>
+
+          <p className="FILE">License</p>
+          <p className="file2">Subject to Competition Rules</p>
+        </div>
+        
         <br/><br/><br/><br/>
+        <div>
+          <img src={logo} alt="logoRSNA" className="logoRSNA" />
+          <span className="top">Radiological Society of North America · Featured Code Competition · 7 days ago</span>
+        </div>
+        <br/>
         <p className="RSNA2024">RSNA 2024 Lumbar Spine Degenerative <br/>Classification</p>
         <p className="tagline">Classify lumbar spine degenerative conditions</p>
           
@@ -355,7 +510,6 @@ function App() {
         </ul>
 
         
-
         <hr className="editHr"/>
         <br/><br/><br/>
 
@@ -394,8 +548,6 @@ function App() {
             Metadata
           </span>
         </div>
-
-        
 
 
         <hr className="editHr"/>

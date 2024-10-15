@@ -1,5 +1,5 @@
 html, body {
-
+  font-family: 'Roboto', sans-serif;
 }
 
 /*               .= class   #=id                  */
@@ -120,6 +120,39 @@ body{
     color: #202124;
   }
 
+  .fileright{
+    position: absolute;
+    top: 10.5%;
+    left: 78%;
+  }
+
+  .FILE{
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  .file{
+    font-size: 14px;
+    color: #5f6f8f;
+    margin: -10px 0 30px;
+  }
+
+  .file2{
+    font-size: 14px;
+    font-weight: 300;
+    color: #5f6f8f;
+    margin: -10px 0 30px;
+    cursor:pointer;
+    text-decoration: underline;
+    text-decoration-color: #5f6f8f;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+  }
+
+  .file2:hover{
+    text-decoration-color: #000000;
+  }
+
   .circle-button {
     margin-top: -10px; 
     margin-left: 5%;
@@ -226,6 +259,15 @@ body{
     height: 1px;
     background-color: #dadce0;
     margin: 20px 0;
+  }
+
+  .justLine2{
+    border: none;
+    position: relative;
+    top:-7px;
+    width: 80%;
+    height: 1px;
+    background-color: #dadce0;
   }
 
   .newlist{
@@ -370,7 +412,7 @@ body{
     padding: 20px;
     border: 1px solid #dadce0;
     border-radius: 12.5px;
-    max-height: 300px; 
+    max-height: 58%; 
     overflow-y: auto; 
     overflow-x: auto;
     width: 100%; 
@@ -403,9 +445,25 @@ body{
     top: 45%;
     left: 70%;
     width: 28%;
+  }
 
+  .logoRSNA{
+    border:#000000 2.75px solid;
+    padding: 0px;
+    height: 30px;
+    border-radius: 50%;
   }
   
+  .top{
+    position: relative;
+    top:-10px;
+    margin-left:15px;
+    color:#5f6371 ;
+    font-weight: 500;
+    font-size: 13px;
+    font-style: roboto;
+  }
+
   .BLUEE{
     background-color: #0008ff;
   }
