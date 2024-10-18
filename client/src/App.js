@@ -117,6 +117,7 @@ function App() {
 
 
     useEffect(() => {
+      console.log("//////////");
       if (csvData.length > 0) {
           const newChartData = {};
           const headers = Object.keys(csvData[0]);
@@ -154,17 +155,25 @@ function App() {
               }
 
               if (values.length - 1 > 100) {
+                const max=Math.max(...numericValues.map(Number));
+                const min=Math.min(...numericValues.map(Number));
                   if (numericValues.length && values.length) {
-                      const binSize = Math.ceil((Math.max(...numericValues.map(Number)) - Math.min(...numericValues.map(Number))) / 10)
+                      //console.log("max: "+Math.max(...numericValues.map(Number)));
+                      //console.log("min: "+Math.min(...numericValues.map(Number)));
+                      
+                      const binSize = Math.ceil(   (max - min)    / 10);
                       const bins = {}
                       numericValues.forEach(value => {
-                          const binIndex = Math.floor(Number(value) / binSize) * binSize
+                          const binIndex =   Math.floor(   (Number(value)-min) / binSize)             * binSize+   min;
                           bins[binIndex] = (bins[binIndex] || 0) + 1
+                          ///console.log(bins[binIndex]);
                       })
 
                       newChartData[header] = {
                           type: 'chart',
-                          labels: Object.keys(bins).map(bin => `${bin}-${Number(bin) + binSize}`),
+                          labels: Object.keys(bins).map(bin => {
+                              return ` ${Number(bin)}-${Number(bin)+ binSize} `  ;
+                          }),
                           datasets: [{
                               label: header,
                               data: Object.values(bins),
@@ -183,7 +192,7 @@ function App() {
                       let stringData = sortedCounts.slice(0, 2).map(([label, count]) => ({
                           label,
                           count,
-                          percentage: ((count / totalCount) * 100).toFixed(0)
+                          percentage: ((count / totalCount) * 100).toFixed(2)
                       }));
                       console.log(sortedCounts.length)
                       const otherCount = totalCount - stringData.reduce((sum, item) => sum + item.count, 0);
@@ -191,7 +200,7 @@ function App() {
                           stringData.push({
                               label: `Other (${otherCount})`,
                               count: otherCount,
-                              percentage: ((otherCount / totalCount) * 100).toFixed(0)
+                              percentage: ((otherCount / totalCount) * 100).toFixed(2)
                           });
                       }
 

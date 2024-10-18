@@ -1,4 +1,4 @@
-const express = require('express');  ///สร้าง http        
+const express = require('express');  /// ลิ้ง  front      
 const fs = require('fs');  ///อ่าน file
 const path = require('path');
 const Papa = require('papaparse');
@@ -89,8 +89,6 @@ app.get('/read-csv', (req, res) => {
       res.send(data);
   });
 });
-
-
 
 
 app.get('/read-file' , (req , res) => {
